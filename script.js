@@ -18,6 +18,26 @@ const KEY_PREFERENCES = [
     'sharp'  // 11: B
 ];
 
+// 조표 위치 정의 (상대적 top 위치 값, 0px이 첫째 줄, 40px이 맨 아랫 줄)
+const SHARP_POS = [0, 15, -5, 10, 25, 5, 20];
+const FLAT_POS = [20, 5, 25, 10, 30, 15, 35];
+
+// Target Key Index별 조표 타입 및 개수
+const KEY_SIGNATURES = {
+    0: { type: 'none', count: 0 },
+    1: { type: 'flat', count: 5 }, // Db
+    2: { type: 'sharp', count: 2 }, // D
+    3: { type: 'flat', count: 3 }, // Eb
+    4: { type: 'sharp', count: 4 }, // E
+    5: { type: 'flat', count: 1 }, // F
+    6: { type: 'sharp', count: 6 }, // F#
+    7: { type: 'sharp', count: 1 }, // G
+    8: { type: 'flat', count: 4 }, // Ab
+    9: { type: 'sharp', count: 3 }, // A
+    10: { type: 'flat', count: 2 }, // Bb
+    11: { type: 'sharp', count: 5 } // B
+};
+
 // 음표 문자열을 인덱스(0~11)로 변환
 function getNoteIndex(noteStr) {
     let index = NOTE_NAMES_SHARP.indexOf(noteStr);
@@ -168,7 +188,9 @@ transposeBtn.addEventListener('click', () => {
     outputGrid.innerHTML = ''; // 기존 결과 지우기
     
     let hasInput = false;
-    
+
+    // 입력된 데이터를 배열로 수집
+    const measuresData = [];
     inputs.forEach((input, index) => {
         const chordValue = input.value.trim();
         const lyricsInput = input.nextElementSibling;
@@ -177,57 +199,159 @@ transposeBtn.addEventListener('click', () => {
         if (chordValue || lyricsValue) hasInput = true;
         
         const transposedValue = chordValue ? transposeChord(chordValue, interval, targetKey) : '';
-        
-        const measureBox = document.createElement('div');
-        measureBox.className = 'measure-box measure';
-        
-        const label = document.createElement('span');
-        label.className = 'measure-number';
-        label.innerText = index + 1;
-        
-        const content = document.createElement('div');
-        content.className = 'output-chord';
-        content.innerText = transposedValue;
-        
-        measureBox.appendChild(label);
-        measureBox.appendChild(content);
-
-        if (lyricsValue) {
-            const lyricsDiv = document.createElement('div');
-            lyricsDiv.className = 'output-lyrics';
-            lyricsDiv.innerText = lyricsValue;
-            measureBox.appendChild(lyricsDiv);
-        }
-
-        outputGrid.appendChild(measureBox);
+        measuresData.push({ chord: transposedValue, lyrics: lyricsValue, num: index + 1 });
     });
-    
+
     if (!hasInput) {
         outputGrid.innerHTML = '<div class="empty-state">코드를 먼저 입력해주세요.</div>';
-    } else {
-        // 부드러운 스크롤 애니메이션
-        document.getElementById('output-panel').scrollIntoView({ behavior: 'smooth' });
+        return;
     }
+
+    // 4마디씩 묶어서 staff-row 생성
+    for (let rowStart = 0; rowStart < measuresData.length; rowStart += 4) {
+        const rowMeasures = measuresData.slice(rowStart, rowStart + 4);
+        
+        const staffRow = document.createElement('div');
+        staffRow.className = 'staff-row';
+
+        // 1) 코드 행
+        const chordRow = document.createElement('div');
+        chordRow.className = 'chord-row';
+        rowMeasures.forEach(m => {
+            const cell = document.createElement('div');
+            cell.className = 'chord-cell';
+            cell.innerText = m.chord || '\u00A0';
+            chordRow.appendChild(cell);
+        });
+        // 4마디 미만인 경우 빈 셀 채우기
+        for (let i = rowMeasures.length; i < 4; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'chord-cell';
+            cell.innerText = '\u00A0';
+            chordRow.appendChild(cell);
+        }
+
+        // 2) 오선지 영역
+        const staffArea = document.createElement('div');
+        staffArea.className = 'staff-area';
+
+        // 오선 5줄 (연속)
+        const staffLinesBg = document.createElement('div');
+        staffLinesBg.className = 'staff-lines-bg';
+        for (let i = 0; i < 5; i++) {
+            const sLine = document.createElement('div');
+            sLine.className = 's-line';
+            staffLinesBg.appendChild(sLine);
+        }
+        staffArea.appendChild(staffLinesBg);
+
+        // 마디 구분선 (세로 바라인)
+        const barlineOverlay = document.createElement('div');
+        barlineOverlay.className = 'barline-overlay';
+
+        // 맨 왼쪽 굵은 바
+        const leftBar = document.createElement('div');
+        leftBar.className = 'barline barline-thick';
+        leftBar.style.left = '0';
+        barlineOverlay.appendChild(leftBar);
+
+        // 마디 구분선 (25%, 50%, 75%)
+        for (let i = 1; i < 4; i++) {
+            if (rowStart + i < measuresData.length) {
+                const bar = document.createElement('div');
+                bar.className = 'barline';
+                bar.style.left = (i * 25) + '%';
+                barlineOverlay.appendChild(bar);
+            }
+        }
+
+        // 맨 오른쪽 굵은 바
+        const rightBar = document.createElement('div');
+        rightBar.className = 'barline barline-thick';
+        rightBar.style.right = '0';
+        barlineOverlay.appendChild(rightBar);
+
+        staffArea.appendChild(barlineOverlay);
+
+        // 높은음자리표 (각 줄의 첫 마디에만)
+        const clef = document.createElement('div');
+        clef.className = 'clef';
+        clef.innerHTML = '&#119070;';
+        staffArea.appendChild(clef);
+
+        // 조표
+        const keySig = document.createElement('div');
+        keySig.className = 'key-sig';
+        const sigInfo = KEY_SIGNATURES[targetKey];
+        if (sigInfo.type !== 'none') {
+            const positions = sigInfo.type === 'sharp' ? SHARP_POS : FLAT_POS;
+            const symbolChar = sigInfo.type === 'sharp' ? '♯' : '♭';
+            for (let i = 0; i < sigInfo.count; i++) {
+                const sym = document.createElement('span');
+                sym.className = 'key-symbol';
+                sym.innerText = symbolChar;
+                sym.style.top = positions[i] + 'px';
+                sym.style.left = (i * 10) + 'px';
+                keySig.appendChild(sym);
+            }
+        }
+        staffArea.appendChild(keySig);
+
+        // 3) 가사 행
+        const lyricsRow = document.createElement('div');
+        lyricsRow.className = 'lyrics-row';
+        rowMeasures.forEach(m => {
+            const cell = document.createElement('div');
+            cell.className = 'lyrics-cell';
+            cell.innerText = m.lyrics || '\u00A0';
+            lyricsRow.appendChild(cell);
+        });
+        for (let i = rowMeasures.length; i < 4; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'lyrics-cell';
+            cell.innerText = '\u00A0';
+            lyricsRow.appendChild(cell);
+        }
+
+        // 마디 번호
+        rowMeasures.forEach((m, idx) => {
+            const numSpan = document.createElement('span');
+            numSpan.className = 'output-measure-num';
+            numSpan.innerText = m.num;
+            numSpan.style.left = (idx * 25) + '%';
+            staffRow.appendChild(numSpan);
+        });
+
+        staffRow.appendChild(chordRow);
+        staffRow.appendChild(staffArea);
+        staffRow.appendChild(lyricsRow);
+        outputGrid.appendChild(staffRow);
+    }
+
+    // 부드러운 스크롤 애니메이션
+    document.getElementById('output-panel').scrollIntoView({ behavior: 'smooth' });
 });
 
 // 이벤트 리스너: PDF 저장
 exportPdfBtn.addEventListener('click', () => {
     const title = songTitleInput.value || 'transpose_sheet';
     
+    // PDF 저장 시 A4 꽉 채우기 대신 내용만큼만 캡쳐 (위에서부터 채움)
+    const originalMinHeight = sheetMusicContainer.style.minHeight;
+    const originalBoxShadow = sheetMusicContainer.style.boxShadow;
+    sheetMusicContainer.style.minHeight = 'auto';
+    sheetMusicContainer.style.boxShadow = 'none';
+
     const opt = {
-        margin:       1,
+        margin:       10,
         filename:     `${title}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    
-    // A4 컨테이너의 box-shadow 제거 등 임시 스타일 변경 (PDF 저장 시 깔끔하게 나오도록)
-    const originalBoxShadow = sheetMusicContainer.style.boxShadow;
-    sheetMusicContainer.style.boxShadow = 'none';
 
     html2pdf().set(opt).from(sheetMusicContainer).save().then(() => {
-        // 원래 스타일로 복구
+        sheetMusicContainer.style.minHeight = originalMinHeight;
         sheetMusicContainer.style.boxShadow = originalBoxShadow;
     });
 });
@@ -236,3 +360,4 @@ exportPdfBtn.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
     initMeasures();
 });
+

@@ -1,15 +1,15 @@
 :root {
-    --bg-color: #121214;
-    --panel-bg: rgba(255, 255, 255, 0.04);
-    --panel-border: rgba(255, 255, 255, 0.08);
-    --text-primary: #e4e4e7;
-    --text-secondary: #a1a1aa;
-    --accent-color: #6366f1;
-    --accent-hover: #4f46e5;
+    --bg-color: #f5f5f7;
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --panel-border: #e0e0e4;
+    --text-primary: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --accent-color: #5856d6;
+    --accent-hover: #4744c4;
     --danger-color: #ef4444;
     --danger-hover: #dc2626;
-    --input-bg: rgba(0, 0, 0, 0.3);
-    --focus-ring: rgba(99, 102, 241, 0.5);
+    --input-bg: #ffffff;
+    --focus-ring: rgba(88, 86, 214, 0.3);
 }
 
 * {
@@ -26,10 +26,6 @@ body {
     display: flex;
     justify-content: center;
     padding: 2rem;
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
-    background-attachment: fixed;
 }
 
 .app-container {
@@ -49,9 +45,7 @@ header h1 {
     font-size: 2.2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #a5b4fc, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent-color);
 }
 
 header p {
@@ -61,12 +55,10 @@ header p {
 
 .glass {
     background: var(--panel-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--panel-border);
     border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .controls-panel {
@@ -95,7 +87,7 @@ select {
     border-radius: 8px;
     background: var(--input-bg);
     border: 1px solid var(--panel-border);
-    color: white;
+    color: var(--text-primary);
     font-size: 1rem;
     outline: none;
     transition: all 0.2s ease;
@@ -130,7 +122,7 @@ select:focus {
     border-radius: 8px;
     background: var(--input-bg);
     border: 1px solid var(--panel-border);
-    color: white;
+    color: var(--text-primary);
     font-size: 1.2rem;
     font-weight: 500;
     outline: none;
@@ -169,12 +161,12 @@ select:focus {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
+    background: #e8e8ed;
     color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: #d1d1d6;
 }
 
 .btn-danger {
@@ -196,7 +188,7 @@ select:focus {
 .btn-primary:hover {
     background: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 12px rgba(88, 86, 214, 0.3);
 }
 
 .btn-large {
@@ -224,11 +216,10 @@ select:focus {
 
 .a4-page {
     background-color: white;
-    width: 210mm; /* A4 width */
-    min-height: 297mm; /* A4 height */
-    padding: 20mm;
+    width: 210mm;
+    padding: 15mm 20mm;
     box-sizing: border-box;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
 }
 
 #sheet-music-title {
@@ -240,7 +231,7 @@ select:focus {
     min-height: 2.4rem;
 }
 
-/* 그리드 시스템: 4마디 단위 */
+/* 입력 그리드: 4마디 단위 */
 .measures-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -272,7 +263,7 @@ select:focus {
     border-radius: 6px;
     background: var(--input-bg);
     border: 1px solid var(--panel-border);
-    color: white;
+    color: var(--text-primary);
     font-size: 1.1rem;
     font-weight: 500;
     text-align: center;
@@ -284,7 +275,7 @@ select:focus {
     width: 100%;
     padding: 0.6rem 0.5rem;
     border-radius: 6px;
-    background: rgba(0, 0, 0, 0.15);
+    background: #fafafa;
     border: 1px solid var(--panel-border);
     color: var(--text-secondary);
     font-size: 0.9rem;
@@ -297,43 +288,149 @@ select:focus {
 .measure-lyrics-input:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px var(--focus-ring);
-    background: rgba(0, 0, 0, 0.5);
 }
 
-/* 출력 섹션 (A4 백색 배경 내) */
-.output-grid .measure-box {
-    background: transparent;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 1.5rem 0.8rem 1rem;
-    text-align: center;
-    min-height: 80px;
+/* ==== 출력: 오선지 행(Row) 레이아웃 ==== */
+.output-grid {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 0;
+}
+
+/* 4마디 1줄을 묶는 행 */
+.staff-row {
     position: relative;
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
 }
 
-.output-chord {
+/* 코드 행 */
+.chord-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-height: 2rem;
+    z-index: 10;
+    position: relative;
+}
+
+.chord-cell {
+    text-align: center;
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #111;
+    padding: 0 4px 4px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 }
 
-.output-lyrics {
-    font-size: 0.9rem;
-    color: #444;
+/* 오선지 영역 */
+.staff-area {
+    position: relative;
+    height: 48px;
 }
 
-.output-grid .measure-number {
-    background: transparent;
-    color: #888;
+.staff-lines-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.s-line {
+    width: 100%;
+    height: 1px;
+    background-color: #333;
+}
+
+/* 마디 구분선 (세로) */
+.barline-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.barline {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background-color: #333;
+}
+
+/* 줄 맨 왼쪽과 오른쪽 굵은 바 */
+.barline-thick {
+    width: 2px;
+}
+
+/* 높은음자리표 */
+.clef {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    color: #111;
+    font-family: 'Times New Roman', 'Segoe UI Symbol', 'Apple Symbols', serif;
+    line-height: 0;
+    z-index: 6;
+}
+
+/* 조표 */
+.key-sig {
+    position: absolute;
+    left: 36px;
+    top: 0;
+    height: 100%;
+    z-index: 6;
+}
+
+.key-symbol {
+    position: absolute;
+    font-size: 18px;
+    color: #111;
+    line-height: 0;
+    transform: translateY(-50%);
+    font-family: 'Times New Roman', 'Segoe UI Symbol', 'Apple Symbols', serif;
+}
+
+/* 가사 행 */
+.lyrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-height: 1.5rem;
+    z-index: 10;
+    position: relative;
+}
+
+.lyrics-cell {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #333;
+    padding: 4px 4px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* 마디 번호 (출력 시) */
+.output-measure-num {
+    position: absolute;
+    top: -14px;
+    font-size: 0.65rem;
+    color: #999;
 }
 
 .empty-state {
-    grid-column: 1 / -1;
     text-align: center;
     padding: 2rem;
     color: var(--text-secondary);
@@ -352,6 +449,6 @@ select:focus {
         max-width: 100%;
     }
     .measures-grid {
-        grid-template-columns: repeat(2, 1fr); /* 모바일에서는 2마디 단위 */
+        grid-template-columns: repeat(2, 1fr);
     }
 }
