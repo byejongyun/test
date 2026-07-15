@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음악 코드 조옮김 도구</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>🎼 코드 조옮김 (Transpose)</h1>
+            <p>원하는 키로 악보 코드를 변환하세요.</p>
+        </header>
+
+        <section class="controls-panel panel glass">
+            <div class="control-group">
+                <label for="original-key">원본 키 (Original Key)</label>
+                <select id="original-key">
+                    <option value="0">C</option>
+                    <option value="1">Db / C#</option>
+                    <option value="2">D</option>
+                    <option value="3">Eb / D#</option>
+                    <option value="4">E</option>
+                    <option value="5">F</option>
+                    <option value="6">F# / Gb</option>
+                    <option value="7">G</option>
+                    <option value="8">Ab / G#</option>
+                    <option value="9">A</option>
+                    <option value="10">Bb / A#</option>
+                    <option value="11">B</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="target-key">목표 키 (Target Key)</label>
+                <select id="target-key">
+                    <option value="0">C</option>
+                    <option value="1">Db / C#</option>
+                    <option value="2" selected>D</option>
+                    <option value="3">Eb / D#</option>
+                    <option value="4">E</option>
+                    <option value="5">F</option>
+                    <option value="6">F# / Gb</option>
+                    <option value="7">G</option>
+                    <option value="8">Ab / G#</option>
+                    <option value="9">A</option>
+                    <option value="10">Bb / A#</option>
+                    <option value="11">B</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="input-section panel glass">
+            <div class="song-title-container">
+                <label for="song-title">노래 제목</label>
+                <input type="text" id="song-title" placeholder="노래 제목을 입력하세요" class="title-input">
+            </div>
+            
+            <div class="section-header">
+                <h2>코드 입력</h2>
+                <div class="actions">
+                    <button id="add-measures-btn" class="btn btn-secondary">+ 4마디 추가</button>
+                    <button id="clear-btn" class="btn btn-danger">초기화</button>
+                </div>
+            </div>
+            <p class="hint">각 마디 칸에 코드를 입력하세요. 한 칸에 두 개 이상의 코드가 있다면 띄어쓰기로 구분하세요. (예: C, Am G)</p>
+            
+            <!-- 4마디 단위로 자동 정렬되는 그리드 -->
+            <div id="input-grid" class="measures-grid">
+                <!-- Javascript로 동적 생성됨 -->
+            </div>
+        </section>
+
+        <div class="action-bar">
+            <button id="transpose-btn" class="btn btn-primary btn-large">조옮김 실행 ➔</button>
+            <button id="export-pdf-btn" class="btn btn-secondary btn-large" style="margin-left: 1rem;">PDF 저장</button>
+        </div>
+
+        <section class="output-section panel glass" id="output-panel">
+            <div class="output-header">
+                <h2>변환된 악보</h2>
+            </div>
+            
+            <div class="a4-wrapper">
+                <div id="sheet-music-container" class="a4-page">
+                    <h3 id="sheet-music-title"></h3>
+                    <div id="output-grid" class="measures-grid output-grid">
+                        <div class="empty-state">결과가 여기에 표시됩니다.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
